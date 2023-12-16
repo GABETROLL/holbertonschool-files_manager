@@ -9,11 +9,8 @@ class DBClient {
     const dbPort = process.env.DB_PORT || 27017;
     const dbDatabase = process.env.DB_DATABASE || 'files_manager';
 
-    console.log('About to construct...');
     MongoClient.connect(`mongodb://${dbHost}:${dbPort}`)
       .then((client) => {
-        console.log('construcing...');
-
         this.client = client;
         this.db = client.db(dbDatabase);
         this.usersColl = this.db.collection('users');

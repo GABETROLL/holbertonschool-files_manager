@@ -1,31 +1,30 @@
-console.log('0');
 import dbClient from './utils/db';
-console.log('1');
 
-function waitConnection() {
-  return new Promise((resolve, reject) => {
-    for (let i = 0; i < 10000000; i++) {
-      if (dbClient.isAlive()) {
-        reslove('OK');
-        return;
-      }
-    }
-    reject('Not OK');
-  });
-}
+const waitConnection = () => {
+    return new Promise((resolve, reject) => {
+        let i = 0;
+        const repeatFct = async () => {
+            await setTimeout(() => {
+                i += 1;
+                if (i >= 10) {
+                    reject()
+                }
+                else if(!dbClient.isAlive()) {
+                    repeatFct()
+                }
+                else {
+                    resolve()
+                }
+            }, 1000);
+        };
+        repeatFct();
+    })
+};
 
-console.log('2');
-
-console.log(dbClient.isAlive());
-
-console.log('3');
-
-waitConnection()
-  .then(async (result) => {
-    console.log('4');
+(async () => {
+    console.log(dbClient.isAlive());
+    await waitConnection();
     console.log(dbClient.isAlive());
     console.log(await dbClient.nbUsers());
     console.log(await dbClient.nbFiles());
-    console.log('5');
-  })
-  .catch((error) => console.log(`ERROR: ${error}`));
+})();
