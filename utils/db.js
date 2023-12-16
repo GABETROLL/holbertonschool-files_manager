@@ -18,11 +18,14 @@ class DBClient {
         this.db = client.db(dbDatabase);
         this.usersColl = this.db.collection('users');
         this.filesColl = this.db.collection('files');
-     });
+      });
   }
 
   isAlive() {
-    return self.client ? true : false;
+    if (this.client) {
+      return true;
+    }
+    return false;
   }
 
   async nbUsers() {

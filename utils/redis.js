@@ -3,12 +3,11 @@ import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
-    this.alive = true;
+    this.alive = undefined;
 
     // localhost:6739
     this.client = createClient();
     this.client.on('error', (error) => {
-      this.alive = false;
       console.log(`ERROR: ${error}`);
     });
 
@@ -17,7 +16,9 @@ class RedisClient {
     this.client.del = promisify(this.client.del);
   }
 
-  isAlive() { /* TODO */ }
+  isAlive() {
+    return this.alive;
+  }
 
   async get(key) {
     return this.client.get(key);
