@@ -9,17 +9,30 @@ class DBClient {
     const dbPort = process.env.DB_PORT || 27017;
     const dbDatabase = process.env.DB_DATABASE || 'files_manager';
 
-    this.alive = false;
-
-    this.client = MongoClient.connect(`mongodb://${dbHost}:${dbPort}`)
+    console.log('About to construct...');
+    MongoClient.connect(`mongodb://${dbHost}:${dbPort}`)
       .then((client) => {
-        this.alive = true;
-        return client;
-      });
-    this.db = this.client.db(dbDatabase);
+        console.log('construcing...');
+
+        this.client = client;
+        this.db = client.db(dbDatabase);
+        this.usersColl = this.db.collection('users');
+        this.filesColl = this.db.collection('files');
+     });
   }
 
   isAlive() {
-    return this.alive;
+    return self.client ? true : false;
+  }
+
+  async nbUsers() {
+    return this.usersColl.countDocuments();
+  }
+
+  async nbFiles() {
+    return this.filesColl.countDocuments();
   }
 }
+
+const dbClient = new DBClient();
+export default dbClient;
