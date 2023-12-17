@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { promisify } from 'util';
+import sha1 from 'sha1';
 
 MongoClient.connect = promisify(MongoClient.connect);
 
@@ -27,6 +28,14 @@ class DBClient {
 
   async nbUsers() {
     return this.usersColl.countDocuments({});
+  }
+
+  async findUser(email) {
+    return this.usersColl.find({ email });
+  }
+
+  async addUser(email, password) {
+    return this.usersColl.insertOne({ email: email, password: sha1(password) });
   }
 
   async nbFiles() {

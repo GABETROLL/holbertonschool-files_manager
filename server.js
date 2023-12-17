@@ -1,10 +1,17 @@
 import express from 'express';
+import mimeTypes from 'mime-types';
 import routes from './routes/index';
 
 const port = process.env.PORT || 5000;
 
 const app = express();
-for (const [route, callback] of Object.entries(routes)) {
-  app.get(route, callback);
+app.use(mimeTypes.contentType('application/json'));
+
+for (const [request, callback] of Object.entries(routes)) {
+  const [method, route] = request.split(' ');
+
+  if (method === 'GET') app.get(route, callback);
+  if (method === 'POST') app.post(route, callback);
 }
+
 app.listen(port, () => undefined);
