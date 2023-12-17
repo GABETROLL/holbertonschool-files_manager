@@ -11,13 +11,18 @@ class RedisClient {
       console.log(`ERROR: ${error}`);
     });
 
+    this.client.ping = promisify(this.client.ping);
     this.client.get = promisify(this.client.get);
     this.client.set = promisify(this.client.set);
     this.client.del = promisify(this.client.del);
   }
 
   isAlive() {
-    return this.alive;
+    // ?
+    if (this.client) {
+      return true;
+    }
+    return false;
   }
 
   async get(key) {
