@@ -30,8 +30,9 @@ class DBClient {
     return this.usersColl.countDocuments({});
   }
 
-  async findUser(email) {
-    return this.usersColl.find({ email });
+  async userAlreadyExists(email) {
+    const matches = await this.usersColl.find({ email }).toArray();
+    return !!matches.length;
   }
 
   async addUser(email, password) {
