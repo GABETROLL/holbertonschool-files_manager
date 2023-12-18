@@ -5,7 +5,7 @@ import routes from './routes/index';
 const port = process.env.PORT || 5000;
 
 const app = express();
-app.use(mimeTypes.contentType('application/json'));
+app.use(mimeTypes.contentType);
 
 for (const [request, callback] of Object.entries(routes)) {
   const [method, route] = request.split(' ');

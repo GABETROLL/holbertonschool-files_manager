@@ -5,15 +5,17 @@ export default class UsersController {
     const email = request.body.email;
     const password = request.body.password;
 
+    console.log(email, password);
+
     if (email === undefined) {
-      request.status(400);
-      request.send({ error: 'Missing email' });
+      response.status(400);
+      response.send({ error: 'Missing email' });
     } else if (password === undefined) {
-      request.status(400);
-      request.send({ error: 'Missing password' });
+      response.status(400);
+      response.send({ error: 'Missing password' });
     } else if (dbClient.findUser(email)) {
-      request.status(400);
-      request.send({ error: 'Already exist' });
+      response.status(400);
+      response.send({ error: 'Already exist' });
     } else {
       const { success, id } = dbClient.addUser(email, password);
       if (!success) {
