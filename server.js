@@ -1,11 +1,10 @@
 import express from 'express';
-import mimeTypes from 'mime-types';
 import routes from './routes/index';
 
 const port = process.env.PORT || 5000;
 
 const app = express();
-app.use(mimeTypes.contentType);
+app.use(express.json());
 
 for (const [request, callback] of Object.entries(routes)) {
   const [method, route] = request.split(' ');

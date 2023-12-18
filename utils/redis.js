@@ -3,26 +3,19 @@ import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
-    this.alive = undefined;
-
     // localhost:6739
     this.client = createClient();
     this.client.on('error', (error) => {
       console.log(`ERROR: ${error}`);
     });
 
-    this.client.ping = promisify(this.client.ping);
     this.client.get = promisify(this.client.get);
     this.client.set = promisify(this.client.set);
     this.client.del = promisify(this.client.del);
   }
 
   isAlive() {
-    // ?
-    if (this.client) {
-      return true;
-    }
-    return false;
+    return this.client.connected;
   }
 
   async get(key) {
