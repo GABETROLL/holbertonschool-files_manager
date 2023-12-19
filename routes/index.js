@@ -1,9 +1,13 @@
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
 
 const routes = {
   'GET /status': AppController.getStatus,
   'GET /stats': AppController.getStats,
   'POST /users': UsersController.postNew,
+  'GET /connect': AuthController.getConnect,
+  'GET /disconnect': AuthController.getDisconnect,
+  // 'GET /users/me': UsersController.getMe,
 };
 export default routes;

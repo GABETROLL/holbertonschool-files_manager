@@ -36,7 +36,14 @@ class DBClient {
   }
 
   async addUser(email, password) {
-    return this.usersColl.insertOne({ email: email, password: sha1(password) });
+    return this.usersColl.insertOne({ email, password: sha1(password) });
+  }
+
+  async validCredentials(email, password) {
+    // assuming there can't be multiple users with the same email and password,
+    // NOR same email.
+    const matches = await this.usersColl.find({ email, password: sha1(password) }).toArray();
+    return !!matches.length;
   }
 
   async nbFiles() {
