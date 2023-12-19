@@ -1,5 +1,5 @@
-import dbClient from '../utils/db';
 import { v4 as uuidv4 } from 'uuid';
+import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 export default class AuthController {
@@ -9,9 +9,9 @@ export default class AuthController {
 
     if (typeof auth !== 'string') {
       response.status(403);
-      response.send({ error: 'Forbidden '});
+      response.send({ error: 'Forbidden' });
       return;
-    } 
+    }
 
     const authContents = auth.split(' ');
     // console.log(`authContents: ${authContents}`);
@@ -22,7 +22,7 @@ export default class AuthController {
       return;
     }
 
-    const [ authType, b64Credentials ] = authContents;
+    const [authType, b64Credentials] = authContents;
     // console.log(` authType: ${authType}, b64Credentials: ${b64Credentials}`);
 
     if (typeof authType !== 'string' || authType !== 'Basic' || typeof b64Credentials !== 'string') {
@@ -42,7 +42,7 @@ export default class AuthController {
       return;
     }
 
-    const [ email, password ] = credentials;
+    const [email, password] = credentials;
     // console.log(`${email}, ${password}`);
 
     if (!(await dbClient.validCredentials(email, password))) {
