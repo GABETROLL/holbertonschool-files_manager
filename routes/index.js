@@ -8,6 +8,6 @@ const routes = {
   'POST /users': UsersController.postNew,
   'GET /connect': AuthController.getConnect,
   'GET /disconnect': AuthController.getDisconnect,
-  // 'GET /users/me': UsersController.getMe,
+  'GET /users/me': UsersController.getMe,
 };
 export default routes;

@@ -35,6 +35,10 @@ class DBClient {
     return !!matches.length;
   }
 
+  async userId(email) {
+    return this.usersColl.findOne({ email });
+  }
+
   async addUser(email, password) {
     return this.usersColl.insertOne({ email, password: sha1(password) });
   }
