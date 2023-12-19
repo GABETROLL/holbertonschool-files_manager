@@ -5,7 +5,7 @@ import redisClient from '../utils/redis';
 export default class AuthController {
   static async getConnect(request, response) {
     const auth = request.get('Authorization');
-    console.log(`auth: ${auth}`);
+    // console.log(`auth: ${auth}`);
 
     if (typeof auth !== 'string') {
       response.status(403);
@@ -14,7 +14,7 @@ export default class AuthController {
     } 
 
     const authContents = auth.split(' ');
-    console.log(`authContents: ${authContents}`);
+    // console.log(`authContents: ${authContents}`);
 
     if (!authContents || authContents.length !== 2) {
       response.status(403);
@@ -23,7 +23,7 @@ export default class AuthController {
     }
 
     const [ authType, b64Credentials ] = authContents;
-    console.log(` authType: ${authType}, b64Credentials: ${b64Credentials}`);
+    // console.log(` authType: ${authType}, b64Credentials: ${b64Credentials}`);
 
     if (typeof authType !== 'string' || authType !== 'Basic' || typeof b64Credentials !== 'string') {
       response.status(403);
@@ -34,7 +34,7 @@ export default class AuthController {
     const credentials = Buffer.from(b64Credentials, 'base64')
       .toString('ascii')
       .split(':');
-    console.log(`credentials: ${credentials}`);
+    // console.log(`credentials: ${credentials}`);
 
     if (credentials.length !== 2) {
       response.status(401);
@@ -43,7 +43,7 @@ export default class AuthController {
     }
 
     const [ email, password ] = credentials;
-    console.log(`${email}, ${password}`);
+    // console.log(`${email}, ${password}`);
 
     if (!(await dbClient.validCredentials(email, password))) {
       response.status(401);
@@ -62,7 +62,7 @@ export default class AuthController {
 
   static async getDisconnect(request, response) {
     const userSessionToken = request.get('X-Token');
-    console.log(userSessionToken);
+    // console.log(userSessionToken);
 
     if (typeof userSessionToken !== 'string') {
       response.status(403);
@@ -71,7 +71,7 @@ export default class AuthController {
     }
 
     const userEmail = await redisClient.get(userSessionToken);
-    console.log(userEmail);
+    // console.log(userEmail);
 
     if (!userEmail || !dbClient.userAlreadyExists(userEmail)) {
       response.status(401);
