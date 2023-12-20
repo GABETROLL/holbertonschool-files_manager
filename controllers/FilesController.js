@@ -13,7 +13,7 @@ export default class FilesController {
       return;
     }
 
-    const userEmail = redisClient.get(userToken);
+    const userEmail = await redisClient.get(userToken);
 
     if (typeof userEmail !== 'string') {
       response.status(401);
@@ -63,10 +63,16 @@ export default class FilesController {
       fileObject.isPublic = false;
     }
 
-    fileObject.userId = dbClient.userId(email);
-
-    if (typeof fileObject.userId !== 'string') {
-      response.statparentFileus(500);
+    const userObject = await dbClient.userObject(userEmail);
+    
+    if (typeof userObject !== 'object') {
+      response.status(500);
+      response.send({ error: 'User not found or invalid' });
+      return;
+    }
+    fileObject.userId = userObject._id;
+    if (!fileObject.userId) {
+      response.status(500);
       response.send({ error: 'User id not found or invalid' });
       return;
     }
@@ -91,7 +97,7 @@ export default class FilesController {
     const fileContent = atob(request.body.data);
 
     writeFile(fileObject.localPath, fileContent);
-    const insertResult = dbClient.addFile(fileObject);
+    const insertResult = await dbClient.addFile(fileObject);
 
     if (!insertResult.result.ok) {
       response.status(500);

@@ -35,7 +35,7 @@ class DBClient {
     return !!matches.length;
   }
 
-  async userId(email) {
+  async userObject(email) {
     return this.usersColl.findOne({ email });
   }
 

@@ -46,7 +46,7 @@ export default class UsersController {
       return;
     }
 
-    const userObject = await dbClient.userId(userEmail);
+    const userObject = await dbClient.userObject(userEmail);
     // console.log(userObject);
 
     if (typeof userObject !== 'object') {
