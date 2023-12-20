@@ -53,6 +53,14 @@ class DBClient {
   async nbFiles() {
     return this.filesColl.countDocuments({});
   }
+
+  async fileWithID(id) {
+    return this.filesColl.findOne({ _id: id });
+  }
+
+  async addFile(file) {
+    return this.filesColl.insertOne(file);
+  }
 }
 
 const dbClient = new DBClient();
