@@ -1,7 +1,7 @@
+import { access, mkdir, writeFile } from 'fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-import { v4 as uuidv4 } from 'uuid';
-import { access, mkdir, writeFile } from 'fs/promises';
 
 export default class FilesController {
   static async postUpload(request, response) {
@@ -117,9 +117,9 @@ export default class FilesController {
         try {
           mkdir(fileDir);
         } catch (error) {
-            response.status(500);
-            response.send({ error: 'Failed to add file' });
-            return;
+          response.status(500);
+          response.send({ error: 'Failed to add file' });
+          return;
         }
       }
     }
@@ -127,11 +127,12 @@ export default class FilesController {
     fileObject.localPath = fileDir + uuidv4();
     // console.log(`fileObject: ${fileObject}`);
 
-    const fileContent = atob(request.body.data);
+    const fileContent = Buffer.from(request.body.data)
+      .toString('ascii');
     // console.log(fileContent);
 
     try {
-      await writeFile(fileObject.localPath, fileContent)
+      await writeFile(fileObject.localPath, fileContent);
     } catch (error) {
       response.status(500);
       response.send({ error: 'Failed to add file' });
