@@ -13,9 +13,9 @@ export default class FilesController {
       return;
     }
 
-    const userEmail = await redisClient.getUserEmail(userToken);
+    const userId = await redisClient.getUserId(userToken);
 
-    if (typeof userEmail !== 'string') {
+    if (!userId || !(await dbClient.userById(userId))) {
       response.status(401);
       response.send({ error: 'Unauthorized' });
       return;
@@ -73,9 +73,6 @@ export default class FilesController {
       fileObject.isPublic = false;
     }
     // console.log(`fileObject: ${fileObject}`);
-
-    const userId = await dbClient.userId(userEmail);
-    // console.log(`userID: ${userID}`);
 
     if (!userId) {
       response.status(500);
@@ -142,5 +139,33 @@ export default class FilesController {
 
     response.status(201);
     response.send({ id: insertResult.insertedId, ...fileObject });
+  }
+
+  static async getShow(request, response) {
+    const userSessionToken = request.get('X-Token');
+
+    if (!userSessionToken) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.getUserId(userSessionToken);
+
+    if (!userId) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const fileWithId = await dbClient.fileWithID(request.params.id);
+
+    if (!fileWithId || !fileWithId.userId || fileWithId.userId.toString() !== userId) {
+      response.status(404);
+      response.send({ error: 'Not found' });
+      return;
+    }
+
+    response.send(fileWithId);
   }
 }

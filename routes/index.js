@@ -11,5 +11,7 @@ const routes = {
   'GET /disconnect': AuthController.getDisconnect,
   'GET /users/me': UsersController.getMe,
   'POST /files': FilesController.postUpload,
+  'GET /files/:id': FilesController.getShow,
+  // 'GET /files': FilesController.getIndex,
 };
 export default routes;

@@ -11,7 +11,7 @@ export default class UsersController {
     } else if (password === undefined) {
       response.status(400);
       response.send({ error: 'Missing password' });
-    } else if (await dbClient.userAlreadyExists(email)) {
+    } else if (await dbClient.userByEmail(email)) {
       response.status(400);
       response.send({ error: 'Already exist' });
     } else {
