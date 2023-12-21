@@ -1,3 +1,4 @@
+import { use } from 'chai';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -50,11 +51,21 @@ export default class AuthController {
       return;
     }
 
+    const userId = await dbClient.userId(email);
+    console.log(`userId: ${userId}`);
+
+    if (!userId) {
+      response.status(500);
+      response.send({ error: 'Unable to retrieve user ID' });
+      return;
+    }
+
     // Create 24h session token for user, and send the token back to the user,
     // for them to use to get back in their session, later.
-    const [dbResponse, userSessionToken] = redisClient.makeUserSession(email);
+    const { dbResponse, userSessionToken } = await redisClient.makeUserSession(userId);
+    // console.log(dbResponse, userSessionToken);
 
-    if (!dbResponse.result.ok) {
+    if (dbResponse !== 'OK') {
       response.status(500);
       response.send({ error: 'Failed to make user session' });
       return;
@@ -74,12 +85,12 @@ export default class AuthController {
       return;
     }
 
-    const userEmail = await redisClient.getUserEmail(userSessionToken);
-    // console.log(userEmail);
+    const userId = await redisClient.getUserId(userSessionToken);
+    // console.log(`userId: ${userId}`);
 
-    if (!userEmail || !dbClient.userAlreadyExists(userEmail)) {
+    if (!userId || !dbClient.userById(userId)) {
       response.status(401);
-      response.send({ error: 'Unauthorized' });
+      response.send({ error: 'Unauthorized'});
       return;
     }
 

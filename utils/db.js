@@ -30,13 +30,25 @@ class DBClient {
     return this.usersColl.countDocuments({});
   }
 
-  async userAlreadyExists(email) {
-    const matches = await this.usersColl.find({ email }).toArray();
-    return !!matches.length;
+  async userByEmail(email) {
+    return this.usersColl.findOne({ email });
   }
 
-  async userObject(email) {
-    return this.usersColl.findOne({ email });
+  async userById(id) {
+    return this.usersColl.findOne({ _id: ObjectId(id) });
+  }
+
+  /**
+   * Returns the `_id` of the user with `{ email: email }`.
+   *
+   * if the user or `_id` are not found, this method returns
+   * a falsy value (null or undefined).
+   *
+   * The ID should be an `ObjectID`.
+   */
+  async userId(email) {
+    const userObject = await this.userByEmail(email);
+    return userObject ? userObject._id : null;
   }
 
   async addUser(email, password) {

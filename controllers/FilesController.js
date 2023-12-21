@@ -74,20 +74,12 @@ export default class FilesController {
     }
     // console.log(`fileObject: ${fileObject}`);
 
-    const userObject = await dbClient.userObject(userEmail);
-    // console.log(`userObject: ${userObject}`);
+    const userId = await dbClient.userId(userEmail);
+    // console.log(`userID: ${userID}`);
 
-    if (!userObject) {
+    if (!userId) {
       response.status(500);
-      response.send({ error: 'User not found or invalid' });
-      return;
-    }
-    fileObject.userId = userObject._id;
-    // console.log(`userObject: ${userObject}`);
-
-    if (!fileObject.userId) {
-      response.status(500);
-      response.send({ error: 'User id not found or invalid' });
+      response.send({ error: 'Unable to retrieve user ID' });
       return;
     }
 

@@ -32,28 +32,30 @@ class RedisClient {
   }
 
   /**
-   * Returns the email corresponding to `auth_${userSessionToken}`,
+   * Returns the user ID `mongodb.ObjectID` corresponding to `auth_${userSessionToken}`,
    * from the Redis DB.
    * If something goes wrong, if the key doesn't exist in the DB,
    * or if the key has no value,
    * this method returns null.
    */
-  async getUserEmail(userSessionToken) {
+  async getUserId(userSessionToken) {
     return this.client.get(`auth_${userSessionToken}`);
   }
 
   /**
    * Creates user session token uuidv4,
    * and adds it to the Redis DB as `auth_${userSessionToken}`
-   * as a key with `userEmail` as the value.
+   * as a key with `userId` as the value.
    *
-   * Returns [ <DB insert result>, userSessionToken ];
+   * The session token will expire in the next 24h.
+   *
+   * Returns { dbResponse, userSessionToken };
    */
-  async makeUserSession(userEmail) {
+  async makeUserSession(userId) {
     const userSessionToken = uuidv4();
-    const key = `auth_${userSessionToken}`;
+    const dbResponse = await this.client.set(`auth_${userSessionToken}`, userId, 'EX', 60 * 60 * 24);
 
-    return [this.client.set(key, userEmail), userSessionToken];
+    return { dbResponse, userSessionToken };
   }
 
   /**

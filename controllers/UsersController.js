@@ -47,7 +47,7 @@ export default class UsersController {
     }
 
     const userObject = await dbClient.userObject(userEmail);
-    // console.log(userObject);
+    // console.log(`userObject: ${userObject}`);
 
     if (typeof userObject !== 'object') {
       response.status(401);
