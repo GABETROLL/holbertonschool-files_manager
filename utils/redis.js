@@ -32,10 +32,10 @@ class RedisClient {
   }
 
   /**
-   * Returns the email corresponding to `userSessionToken`,
+   * Returns the email corresponding to `auth_${userSessionToken}`,
    * from the Redis DB.
-   * If something goes wrong, if the `userSessionToken`
-   * isn't a key in the DB or if the key has no value,
+   * If something goes wrong, if the key doesn't exist in the DB,
+   * or if the key has no value,
    * this method returns null.
    */
   async getUserEmail(userSessionToken) {
@@ -44,8 +44,8 @@ class RedisClient {
 
   /**
    * Creates user session token uuidv4,
-   * and adds it to the Redis DB with `userEmail`
-   * as the value.
+   * and adds it to the Redis DB as `auth_${userSessionToken}`
+   * as a key with `userEmail` as the value.
    *
    * Returns [ <DB insert result>, userSessionToken ];
    */
@@ -57,7 +57,7 @@ class RedisClient {
   }
 
   /**
-   * Attempts to delete `userSessionToken` from the RedisDB.
+   * Attempts to delete `auth_${userSessionToken}` from the RedisDB.
    * Returns the DB's response.
    */
   async endUserSession(userSessionToken) {

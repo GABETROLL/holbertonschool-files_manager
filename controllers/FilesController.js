@@ -13,7 +13,7 @@ export default class FilesController {
       return;
     }
 
-    const userEmail = await redisClient.get(userToken);
+    const userEmail = await redisClient.getUserEmail(userToken);
 
     if (typeof userEmail !== 'string') {
       response.status(401);

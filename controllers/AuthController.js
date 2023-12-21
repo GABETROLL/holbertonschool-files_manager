@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -53,9 +52,9 @@ export default class AuthController {
 
     // Create 24h session token for user, and send the token back to the user,
     // for them to use to get back in their session, later.
-    const [success, userSessionToken] = redisClient.makeUserSession(email);
+    const [dbResponse, userSessionToken] = redisClient.makeUserSession(email);
 
-    if (!success.result.ok) {
+    if (!dbResponse.result.ok) {
       response.status(500);
       response.send({ error: 'Failed to make user session' });
       return;
@@ -84,9 +83,9 @@ export default class AuthController {
       return;
     }
 
-    const success = redisClient.del(userSessionToken);
+    const dbResponse = redisClient.endUserSession(userSessionToken);
 
-    if (!success.result.ok) {
+    if (!dbResponse.result.ok) {
       response.status(500);
       response.send({ error: 'Failed to delete session' });
       return;

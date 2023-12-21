@@ -37,7 +37,7 @@ export default class UsersController {
       return;
     }
 
-    const userEmail = await redisClient.get(userSessionToken);
+    const userEmail = await redisClient.getUserEmail(userSessionToken);
     // console.log(userEmail);
 
     if (typeof userEmail !== 'string') {
