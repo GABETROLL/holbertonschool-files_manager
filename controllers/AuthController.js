@@ -62,7 +62,7 @@ export default class AuthController {
 
     // Create 24h session token for user, and send the token back to the user,
     // for them to use to get back in their session, later.
-    const { dbResponse, userSessionToken } = await redisClient.makeUserSession(userId);
+    const { dbResponse, userSessionToken } = await redisClient.makeUserSession(userId.toString());
     // console.log(dbResponse, userSessionToken);
 
     if (dbResponse !== 'OK') {
@@ -94,13 +94,7 @@ export default class AuthController {
       return;
     }
 
-    const dbResponse = redisClient.endUserSession(userSessionToken);
-
-    if (!dbResponse.result.ok) {
-      response.status(500);
-      response.send({ error: 'Failed to delete session' });
-      return;
-    }
+    await redisClient.endUserSession(userSessionToken);
     response.status(204);
     response.send();
   }

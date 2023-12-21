@@ -35,7 +35,7 @@ class DBClient {
   }
 
   async userById(id) {
-    return this.usersColl.findOne({ _id: ObjectId(id) });
+    return this.usersColl.findOne({ _id: ObjectId(id.toString()) });
   }
 
   /**

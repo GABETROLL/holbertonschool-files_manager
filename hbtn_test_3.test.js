@@ -30,10 +30,6 @@ describe('GET /connect', () => {
         });
     }
 
-    /**
-     * Empties MongoDB and Redis servers and
-     * creates a new user with a random email and SHA1'ed password
-     */
     beforeEach(() => {
         const dbInfo = {
             host: process.env.DB_HOST || 'localhost',
@@ -43,8 +39,8 @@ describe('GET /connect', () => {
         return new Promise((resolve) => {
             MongoClient.connect(`mongodb://${dbInfo.host}:${dbInfo.port}/${dbInfo.database}`, async (err, client) => {
                 testClientDb = client.db(dbInfo.database);
-
-                await testClientDb.collection('users').deleteMany({});
+            
+                await testClientDb.collection('users').deleteMany({})
 
                 // Add 1 user
                 initialUserPwd = fctRandomString();
@@ -69,9 +65,9 @@ describe('GET /connect', () => {
             }); 
         });
     });
-
+        
     afterEach(() => {
-      fctRemoveAllRedisKeys();
+        fctRemoveAllRedisKeys();
     });
 
     it('GET /connect with correct user email and password', (done) => {

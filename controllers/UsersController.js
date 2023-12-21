@@ -32,21 +32,21 @@ export default class UsersController {
     // console.log(userSessionToken);
 
     if (typeof userSessionToken !== 'string') {
-      response.status(403);
-      response.send({ error: 'Forbidden' });
-      return;
-    }
-
-    const userEmail = await redisClient.getUserEmail(userSessionToken);
-    // console.log(userEmail);
-
-    if (typeof userEmail !== 'string') {
       response.status(401);
       response.send({ error: 'Unauthorized' });
       return;
     }
 
-    const userObject = await dbClient.userObject(userEmail);
+    const userId = await redisClient.getUserId(userSessionToken);
+    // console.log(`userId: ${userId}`);
+
+    if (typeof userId !== 'string') {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userObject = await dbClient.userById(userId);
     // console.log(`userObject: ${userObject}`);
 
     if (typeof userObject !== 'object') {
