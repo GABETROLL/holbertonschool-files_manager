@@ -1,4 +1,3 @@
-import { use } from 'chai';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -90,7 +89,7 @@ export default class AuthController {
 
     if (!userId || !dbClient.userById(userId)) {
       response.status(401);
-      response.send({ error: 'Unauthorized'});
+      response.send({ error: 'Unauthorized' });
       return;
     }
 
