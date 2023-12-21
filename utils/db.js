@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { promisify } from 'util';
 import sha1 from 'sha1';
 
@@ -55,7 +55,7 @@ class DBClient {
   }
 
   async fileWithID(id) {
-    return this.filesColl.findOne({ _id: id });
+    return this.filesColl.findOne({ _id: ObjectId(id) });
   }
 
   async addFile(file) {

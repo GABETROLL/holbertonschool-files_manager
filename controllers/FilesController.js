@@ -1,7 +1,7 @@
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 import { v4 as uuidv4 } from 'uuid';
-import { writeFile } from 'fs';
+import { access, mkdir, writeFile } from 'fs/promises';
 
 export default class FilesController {
   static async postUpload(request, response) {
@@ -21,6 +21,8 @@ export default class FilesController {
       return;
     }
 
+    // console.log('About to construct fileObject...');
+
     const fileObject = {
       name: request.body.name,
       type: request.body.type,
@@ -29,25 +31,31 @@ export default class FilesController {
     };
     let parentFile;
 
+    // console.log(`fileObject: ${fileObject}`);
+
     if (typeof fileObject.name !== 'string') {
       response.status(400);
       response.send({ error: 'Missing name' });
       return;
     }
+    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.type !== 'folder' && fileObject.type !== 'file' && fileObject.type !== 'image') {
       response.status(400);
       response.send({ error: 'Missing type' });
       return;
     }
+    // console.log(`fileObject: ${fileObject}`);
     if (!request.body.data && fileObject.type !== 'folder') {
       response.status(400);
       response.send({ error: 'Missing data' });
       return;
     }
+    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.parentId) {
       parentFile = await dbClient.fileWithID(fileObject.parentId);
+      console.log(`parentFile: ${parentFile}`);
 
-      if (typeof parentFile !== 'object') {
+      if (!parentFile) {
         response.status(400);
         response.send({ error: 'Parent not found' });
         return;
@@ -59,18 +67,23 @@ export default class FilesController {
         return;
       }
     }
+    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.isPublic !== true) {
       fileObject.isPublic = false;
     }
+    // console.log(`fileObject: ${fileObject}`);
 
     const userObject = await dbClient.userObject(userEmail);
-    
-    if (typeof userObject !== 'object') {
+    // console.log(`userObject: ${userObject}`);
+
+    if (!userObject) {
       response.status(500);
       response.send({ error: 'User not found or invalid' });
       return;
     }
     fileObject.userId = userObject._id;
+    // console.log(`userObject: ${userObject}`);
+
     if (!fileObject.userId) {
       response.status(500);
       response.send({ error: 'User id not found or invalid' });
@@ -79,6 +92,7 @@ export default class FilesController {
 
     if (request.body.type === 'folder') {
       const insertResult = await dbClient.addFile(fileObject);
+      // console.log(`insertResult: ${insertResult}`);
 
       // verify the result was ok
       if (!insertResult.result.ok) {
@@ -92,14 +106,41 @@ export default class FilesController {
       return;
     }
 
-    fileObject.localPath = (process.env.FOLDER_PATH || '/tmp/files_manager/')
-      + uuidv4();
-    const fileContent = atob(request.body.data);
+    let fileDir = process.env.FOLDER_PATH;
+    // console.log(`fileDir: ${fileDir}`);
 
-    writeFile(fileObject.localPath, fileContent);
+    if (!fileDir) {
+      fileDir = '/tmp/files_manager/';
+
+      if (!access(fileDir)) {
+        try {
+          mkdir(fileDir);
+        } catch (error) {
+            response.status(500);
+            response.send({ error: 'Failed to add file' });
+            return;
+        }
+      }
+    }
+
+    fileObject.localPath = fileDir + uuidv4();
+    // console.log(`fileObject: ${fileObject}`);
+
+    const fileContent = atob(request.body.data);
+    // console.log(fileContent);
+
+    try {
+      await writeFile(fileObject.localPath, fileContent)
+    } catch (error) {
+      response.status(500);
+      response.send({ error: 'Failed to add file' });
+      return;
+    }
+
     const insertResult = await dbClient.addFile(fileObject);
 
     if (!insertResult.result.ok) {
+      // maybe TODO: remove file
       response.status(500);
       response.send({ error: 'Failed to add file' });
       return;
