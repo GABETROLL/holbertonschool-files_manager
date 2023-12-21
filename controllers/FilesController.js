@@ -33,6 +33,7 @@ export default class FilesController {
 
     // console.log(`fileObject: ${fileObject}`);
 
+    // TODO: PREVENT DUPLICATES
     if (typeof fileObject.name !== 'string') {
       response.status(400);
       response.send({ error: 'Missing name' });
