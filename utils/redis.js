@@ -1,5 +1,6 @@
 import { createClient } from 'redis';
 import { promisify } from 'util';
+import { v4 as uuidv4 } from 'uuid';
 
 class RedisClient {
   constructor() {
@@ -28,6 +29,39 @@ class RedisClient {
 
   async del(key) {
     await this.client.del(key);
+  }
+
+  /**
+   * Returns the email corresponding to `userSessionToken`,
+   * from the Redis DB.
+   * If something goes wrong, if the `userSessionToken`
+   * isn't a key in the DB or if the key has no value,
+   * this method returns null.
+   */
+  async getUserEmail(userSessionToken) {
+    return this.client.get(`auth_${userSessionToken}`);
+  }
+
+  /**
+   * Creates user session token uuidv4,
+   * and adds it to the Redis DB with `userEmail`
+   * as the value.
+   *
+   * Returns [ <DB insert result>, userSessionToken ];
+   */
+  async makeUserSession(userEmail) {
+    const userSessionToken = uuidv4();
+    const key = `auth_${userSessionToken}`;
+
+    return [this.client.set(key, userEmail), userSessionToken];
+  }
+
+  /**
+   * Attempts to delete `userSessionToken` from the RedisDB.
+   * Returns the DB's response.
+   */
+  async endUserSession(userSessionToken) {
+    return this.client.del(`auth_${userSessionToken}`);
   }
 }
 

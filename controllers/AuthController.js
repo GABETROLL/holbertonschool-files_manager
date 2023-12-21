@@ -52,9 +52,14 @@ export default class AuthController {
     }
 
     // Create 24h session token for user, and send the token back to the user,
-    // for them to use to get bac in their session, later.
-    const userSessionToken = uuidv4();
-    redisClient.set(userSessionToken, email, 60 * 60 * 24);
+    // for them to use to get back in their session, later.
+    const [success, userSessionToken] = redisClient.makeUserSession(email);
+
+    if (!success.result.ok) {
+      response.status(500);
+      response.send({ error: 'Failed to make user session' });
+      return;
+    }
 
     response.status(200);
     response.send({ token: userSessionToken });
@@ -70,7 +75,7 @@ export default class AuthController {
       return;
     }
 
-    const userEmail = await redisClient.get(userSessionToken);
+    const userEmail = await redisClient.getUserEmail(userSessionToken);
     // console.log(userEmail);
 
     if (!userEmail || !dbClient.userAlreadyExists(userEmail)) {
@@ -79,7 +84,13 @@ export default class AuthController {
       return;
     }
 
-    redisClient.del(userSessionToken);
+    const success = redisClient.del(userSessionToken);
+
+    if (!success.result.ok) {
+      response.status(500);
+      response.send({ error: 'Failed to delete session' });
+      return;
+    }
     response.status(204);
     response.send();
   }
