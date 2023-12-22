@@ -1,7 +1,9 @@
-import { access, mkdir, writeFile } from 'fs/promises';
+import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+
+const { access, mkdir, writeFile } = fsPromises;
 
 export default class FilesController {
   static async postUpload(request, response) {
