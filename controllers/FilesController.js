@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-const { access, mkdir, writeFile } = fsPromises;
+const { mkdir, writeFile } = fsPromises;
 
 export default class FilesController {
   static async postUpload(request, response) {
@@ -90,7 +90,7 @@ export default class FilesController {
       return;
     }
 
-    let fileDir = process.env.FOLDER_PATH || '/tmp/files_manager/';
+    const fileDir = process.env.FOLDER_PATH || '/tmp/files_manager/';
     // console.log(`fileDir: ${fileDir}`);
 
     try {
