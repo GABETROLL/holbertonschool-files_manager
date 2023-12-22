@@ -33,7 +33,7 @@ export default class FilesController {
     };
     let parentFile;
 
-    // console.log(`fileObject: ${fileObject}`);
+    // console.log(fileObject);
 
     // TODO: PREVENT DUPLICATES
     if (typeof fileObject.name !== 'string') {
@@ -70,17 +70,11 @@ export default class FilesController {
     if (fileObject.isPublic !== true) {
       fileObject.isPublic = false;
     }
-    // console.log(`fileObject: ${fileObject}`);
-
-    if (!userId) {
-      response.status(500);
-      response.send({ error: 'Unable to retrieve user ID' });
-      return;
-    }
+    // console.log(fileObject);
 
     if (request.body.type === 'folder') {
       const insertResult = await dbClient.addFile(fileObject);
-      // console.log(`insertResult: ${insertResult}`);
+      // console.log(insertResult);
 
       // verify the result was ok
       if (!insertResult.result.ok) {
@@ -89,8 +83,10 @@ export default class FilesController {
         return;
       }
 
+      // console.log(fileObject);
+
       response.status(201);
-      response.send({ id: insertResult.insertedId, ...fileObject });
+      response.send(fileObject);
       return;
     }
 
@@ -130,7 +126,7 @@ export default class FilesController {
     }
 
     response.status(201);
-    response.send({ id: insertResult.insertedId, ...fileObject });
+    response.send(fileObject);
   }
 
   static async getShow(request, response) {
