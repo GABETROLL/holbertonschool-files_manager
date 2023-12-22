@@ -41,19 +41,16 @@ export default class FilesController {
       response.send({ error: 'Missing name' });
       return;
     }
-    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.type !== 'folder' && fileObject.type !== 'file' && fileObject.type !== 'image') {
       response.status(400);
       response.send({ error: 'Missing type' });
       return;
     }
-    // console.log(`fileObject: ${fileObject}`);
     if (!request.body.data && fileObject.type !== 'folder') {
       response.status(400);
       response.send({ error: 'Missing data' });
       return;
     }
-    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.parentId) {
       parentFile = await dbClient.fileWithID(fileObject.parentId);
       console.log(`parentFile: ${parentFile}`);
@@ -70,7 +67,6 @@ export default class FilesController {
         return;
       }
     }
-    // console.log(`fileObject: ${fileObject}`);
     if (fileObject.isPublic !== true) {
       fileObject.isPublic = false;
     }
@@ -98,21 +94,15 @@ export default class FilesController {
       return;
     }
 
-    let fileDir = process.env.FOLDER_PATH;
+    let fileDir = process.env.FOLDER_PATH || '/tmp/files_manager';
     // console.log(`fileDir: ${fileDir}`);
 
-    if (!fileDir) {
-      fileDir = '/tmp/files_manager/';
-
-      if (!access(fileDir)) {
-        try {
-          mkdir(fileDir);
-        } catch (error) {
-          response.status(500);
-          response.send({ error: 'Failed to add file' });
-          return;
-        }
-      }
+    try {
+      mkdir(fileDir);
+    } catch (error) {
+      response.status(500);
+      response.send({ error: 'Failed to add file' });
+      return;
     }
 
     fileObject.localPath = fileDir + uuidv4();

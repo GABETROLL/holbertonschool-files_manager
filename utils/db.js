@@ -67,6 +67,13 @@ class DBClient {
   }
 
   async fileWithID(id) {
+    let _id; 
+    try {
+      _id = ObjectId(id);
+    } catch (error) {
+      // making an ObjectId with an ID in the wrong format throws.
+      return null;
+    }
     return this.filesColl.findOne({ _id: ObjectId(id) });
   }
 
