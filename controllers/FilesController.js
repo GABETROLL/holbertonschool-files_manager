@@ -94,7 +94,7 @@ export default class FilesController {
       return;
     }
 
-    let fileDir = process.env.FOLDER_PATH || '/tmp/files_manager';
+    let fileDir = process.env.FOLDER_PATH || '/tmp/files_manager/';
     // console.log(`fileDir: ${fileDir}`);
 
     try {
