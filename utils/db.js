@@ -80,6 +80,43 @@ class DBClient {
   async addFile(file) {
     return this.filesColl.insertOne(file);
   }
+
+  /**
+   * Returns an array of all of the file MongoDB
+   * documents in `self.filesColl` that belong to
+   * the user with `userId` (the documents that have
+   * `{ userId: userID }`)
+   * and that have `{ parentId: parentId }`.
+   *
+   * If `parentId` is falsy,
+   * it's skipped over.
+   */
+  async findFiles(userId, id, parentId) {
+    if (!userId) return [];
+
+    const query = {};
+
+    try {
+      query.userId = ObjectId(userId);
+    } catch (error) {
+      return [];
+    }
+    if (id) {
+      try {
+        query._id = ObjectId(id);
+      } catch (error) {
+        return [];
+      }
+    }
+    if (parentId) {
+      try {
+        query.parentId = ObjectId(parentId);
+      } catch (error) {
+        return [];
+      }
+    }
+    return await this.filesColl.find(query).toArray();
+  }
 }
 
 const dbClient = new DBClient();

@@ -166,6 +166,22 @@ export default class FilesController {
       return;
     }
 
+    const userId = redisClient.getUserId(userSessionToken);
+    
+    if (!userId) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
 
+    const filesArray = await dbClient.findFiles(
+      userId,
+      request.params.id,
+      request.query.parentId
+    );
+
+    // pagination here
+
+    response.json(filesArray);
   }
 }
