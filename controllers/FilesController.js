@@ -1,5 +1,6 @@
 import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import ObjectId from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -30,7 +31,7 @@ export default class FilesController {
       type: request.body.type,
       isPublic: request.body.isPublic,
       parentId: request.body.parentId || 0,
-      userId,
+      userId: ObjectId(userId),
     };
     let parentFile;
 
@@ -148,5 +149,17 @@ export default class FilesController {
     }
 
     response.send(fileWithId);
+  }
+
+  static async getIndex(request, response) {
+    const userSessionToken = request.get('X-Token');
+
+    if (!userSessionToken) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+
   }
 }
