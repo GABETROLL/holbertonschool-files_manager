@@ -176,7 +176,6 @@ export default class FilesController {
 
     const filesArray = await dbClient.findFiles(
       userId,
-      request.params.id,
       request.query.parentId
     );
 
