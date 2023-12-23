@@ -18,20 +18,26 @@ export default class FilesController {
 
     const userId = await redisClient.getUserId(userToken);
 
-    if (!userId || !(await dbClient.userById(userId))) {
+    if (!userId) {
       response.status(401);
       response.send({ error: 'Unauthorized' });
       return;
     }
 
-    // console.log('About to construct fileObject...');
+    const userObject = await dbClient.userById(userId);
+
+    if (!userObject) {
+      response.status(500);
+      response.send({ error: 'Failed to get user from ID' });
+      return;
+    }
 
     const fileObject = {
       name: request.body.name,
       type: request.body.type,
       isPublic: request.body.isPublic,
       parentId: request.body.parentId || 0,
-      userId: ObjectId(userId),
+      userId: userObject._id,
     };
     let parentFile;
 
