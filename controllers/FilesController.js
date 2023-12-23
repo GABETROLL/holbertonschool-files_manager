@@ -80,12 +80,8 @@ export default class FilesController {
       // console.log(`fileDir: ${fileDir}`);
 
       try {
-        mkdir(fileDir);
-      } catch (error) {
-        response.status(500);
-        response.send({ error: 'Failed to add file' });
-        return;
-      }
+        await mkdir(fileDir);
+      } catch (error) { }
 
       fileObject.localPath = fileDir + uuidv4();
       // console.log(`fileObject: ${fileObject}`);
