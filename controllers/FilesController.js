@@ -30,6 +30,7 @@ export default class FilesController {
       type: request.body.type,
       isPublic: request.body.isPublic,
       parentId: request.body.parentId || 0,
+      userId,
     };
     let parentFile;
 
@@ -53,7 +54,7 @@ export default class FilesController {
     }
     if (fileObject.parentId) {
       parentFile = await dbClient.fileWithID(fileObject.parentId);
-      console.log(`parentFile: ${parentFile}`);
+      // console.log(`parentFile: ${parentFile}`);
 
       if (!parentFile) {
         response.status(400);
@@ -72,48 +73,34 @@ export default class FilesController {
     }
     // console.log(fileObject);
 
-    if (request.body.type === 'folder') {
-      const insertResult = await dbClient.addFile(fileObject);
-      // console.log(insertResult);
+    if (fileObject.type !== 'folder') {
+      // console.log('NOT FOLDER');
 
-      // verify the result was ok
-      if (!insertResult.result.ok) {
+      const fileDir = process.env.FOLDER_PATH || '/tmp/files_manager/';
+      // console.log(`fileDir: ${fileDir}`);
+
+      try {
+        mkdir(fileDir);
+      } catch (error) {
         response.status(500);
         response.send({ error: 'Failed to add file' });
         return;
       }
 
-      // console.log(fileObject);
+      fileObject.localPath = fileDir + uuidv4();
+      // console.log(`fileObject: ${fileObject}`);
 
-      response.status(201);
-      response.send(fileObject);
-      return;
-    }
+      const fileContent = Buffer.from(request.body.data, 'base64')
+        .toString('ascii');
+      // console.log(`fileContent: ${fileContent}`);
 
-    const fileDir = process.env.FOLDER_PATH || '/tmp/files_manager/';
-    // console.log(`fileDir: ${fileDir}`);
-
-    try {
-      mkdir(fileDir);
-    } catch (error) {
-      response.status(500);
-      response.send({ error: 'Failed to add file' });
-      return;
-    }
-
-    fileObject.localPath = fileDir + uuidv4();
-    // console.log(`fileObject: ${fileObject}`);
-
-    const fileContent = Buffer.from(request.body.data)
-      .toString('ascii');
-    // console.log(fileContent);
-
-    try {
-      await writeFile(fileObject.localPath, fileContent);
-    } catch (error) {
-      response.status(500);
-      response.send({ error: 'Failed to add file' });
-      return;
+      try {
+        await writeFile(fileObject.localPath, fileContent);
+      } catch (error) {
+        response.status(500);
+        response.send({ error: 'Failed to add file' });
+        return;
+      }
     }
 
     const insertResult = await dbClient.addFile(fileObject);
@@ -124,6 +111,16 @@ export default class FilesController {
       response.send({ error: 'Failed to add file' });
       return;
     }
+
+    // ``await dbClient.addFile(fileObject)``
+    // inserts the mongo-generated ``_id`` into the object
+    // as a side-effect,
+    // but we want to response with ``id`` as the key,
+    // not ``_id``.
+    fileObject.id = fileObject._id;
+    delete fileObject._id;
+
+    // console.log(fileObject);
 
     response.status(201);
     response.send(fileObject);
