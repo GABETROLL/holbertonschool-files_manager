@@ -88,33 +88,34 @@ class DBClient {
    * `{ userId: userID }`)
    * and that have `{ parentId: parentId }`.
    *
-   * If `parentId` is falsy,
-   * it's skipped over.
+   * If `userId` is not a valid `ObjectId`,
+   * this method returns null.
+   * If `parentId` is falsy, it's skipped over;
+   * and if it's not a valid `ObjectId`, this method returns
+   * null.
+   * 
+   * This method *should* return an array when successful,
+   * and *should* return a falsy value when unsuccessful.
+   * All of my implementations use null, and the inner
+   * MongoDB method call should 
    */
-  async findFiles(userId, id, parentId) {
-    if (!userId) return [];
-
+  async findFiles(userId, parentId) {
     const query = {};
 
     try {
       query.userId = ObjectId(userId);
     } catch (error) {
-      return [];
-    }
-    if (id) {
-      try {
-        query._id = ObjectId(id);
-      } catch (error) {
-        return [];
-      }
+      return null;
     }
     if (parentId) {
       try {
         query.parentId = ObjectId(parentId);
       } catch (error) {
-        return [];
+        return null;
       }
     }
+    console.log('query:')
+    console.log(query);
     return await this.filesColl.find(query).toArray();
   }
 }

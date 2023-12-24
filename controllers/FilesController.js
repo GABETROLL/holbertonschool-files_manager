@@ -162,25 +162,37 @@ export default class FilesController {
 
     if (!userSessionToken) {
       response.status(401);
-      response.send({ error: 'Unauthorized' });
+      response.json({ error: 'Unauthorized' });
       return;
     }
 
-    const userId = redisClient.getUserId(userSessionToken);
-    
-    if (!userId) {
+    const userId = await redisClient.getUserId(userSessionToken);
+
+    if (!userId || !(await dbClient.userById(userId))) {
       response.status(401);
-      response.send({ error: 'Unauthorized' });
+      response.json({ error: 'Unauthorized' });
       return;
     }
 
-    const filesArray = await dbClient.findFiles(
-      userId,
-      request.query.parentId
-    );
+    let parentId = request.query.parentId;
+    if (Number.parseInt(parentId, 16) === 0) {
+      parentId = null;
+    }
 
-    // pagination here
+    console.log(`parentId: ${parentId}`);
 
-    response.json(filesArray);
+    let result = await dbClient
+      .findFiles(userId, parentId)
+      || [];
+
+    const pageNumber = Number.parseInt(request.query.page);
+    console.log(pageNumber);
+    const pageSize = 20;
+
+    if (Number.isInteger(pageNumber)) {
+      result = result.slice(pageNumber * pageSize, pageNumber * pageSize + pageSize);
+    }
+
+    response.json(result);
   }
 }
