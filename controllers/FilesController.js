@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-const { mkdir, writeFile } = fsPromises;
+const { mkdir, writeFile, readFile } = fsPromises;
 
 export default class FilesController {
   static async postUpload(request, response) {
@@ -245,5 +245,36 @@ export default class FilesController {
 
   static async putUnpublish(request, response) {
     FilesController.putPublishUnpublish(request, response, false);
+  }
+
+  static async getFile(request, response) {
+    const fileObject = await dbClient.fileWithID(request.params.id);
+
+    if (!fileObject) {
+      response.status(404);
+      response.json({ error: 'Not found' });
+      return;
+    }
+
+    const userSessionToken = request.get('X-Token');
+    const userId = await redisClient.getUserId(userSessionToken);
+    // console.log(userSessionToken, userId);
+
+    if (!fileObject.isPublic && fileObject.userId.toString() !== userId) {
+      response.status(404);
+      response.json({ error: 'Not found' });
+      return;
+    }
+
+    let fileContent;
+    try {
+      fileContent = await readFile(fileObject.localPath);
+    } catch (error) {
+      response.status(404);
+      response.json({ error: 'Not found' });
+      return;
+    }
+
+    response.send(fileContent);
   }
 }

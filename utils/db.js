@@ -119,6 +119,9 @@ class DBClient {
     return this.filesColl.find(query).toArray();
   }
 
+  async findFile(query) {
+  }
+
   /**
    * Tries to return one file in `this.filesColl`
    * that's owned by `userId` and has
