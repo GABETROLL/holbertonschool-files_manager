@@ -196,4 +196,41 @@ export default class FilesController {
 
     response.json(result);
   }
+
+  static async putPublishUnpublish(request, response, publish) {
+    const userSessionToken = request.get('X-Token');
+
+    if (!userSessionToken) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.getUserId(userSessionToken);
+
+    if (!userId) {
+      response.status(401);
+      response.send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const fileObject = await dbClient.findUserFile(userId, request.params.id);
+    if (!fileObject) {
+      response.status(404);
+      response.send({ error: 'Not found' });
+      return;
+    }
+
+    const updateResult = await dbClient.setFilePublic(userId, request.params.id, publish);
+    console.log(updateResult);
+    response.send({ success: true });
+  }
+
+  static async putPublish(request, response) {
+    FilesController.putPublishUnpublish(request, response);
+  }
+
+  static async putUnpublish(request, response) {
+    FilesController.putPublishUnpublish(request, response);
+  }
 }

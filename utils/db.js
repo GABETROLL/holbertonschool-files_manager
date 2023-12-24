@@ -118,6 +118,39 @@ class DBClient {
     // console.log(query);
     return this.filesColl.find(query).toArray();
   }
+
+  /**
+   * Tries to return one file in `this.filesColl`
+   * that's owned by `userId` and has
+   * `{ _id: id }`.
+   *
+   * If `userId` or `id` aren't valid `ObjectId`,
+   * this method returns null.
+   * This method *should* return null if the file
+   * isn't found.
+   */
+  async findUserFile(userId, id) {
+    try {
+      userId = ObjectId(userId);
+      id = ObjectId(id);
+    } catch (error) {
+      return null;
+    }
+    return this.filesColl.find({ _id: id, userId });
+  }
+
+  async setFilePublic(userId, id, public) {
+    try {
+      userId = ObjectId(userId);
+      id = ObjectId(id);
+    } catch (error) {
+      /* I think it should be not found anyways */
+    }
+    return this.filesColl.updateOne(
+      { _id: id, userId },
+      { $set: { 'isPublic': public } },
+    );
+  }
 }
 
 const dbClient = new DBClient();

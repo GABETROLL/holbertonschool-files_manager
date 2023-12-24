@@ -13,5 +13,7 @@ const routes = {
   'POST /files': FilesController.postUpload,
   'GET /files/:id': FilesController.getShow,
   'GET /files': FilesController.getIndex,
+  'PUT /files/:id/publish': FilesController.putPublish,
+  'PUT /files/:id/publish': FilesController.putUnpublish,
 };
 export default routes;
