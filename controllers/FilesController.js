@@ -1,6 +1,5 @@
 import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import ObjectId from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -88,7 +87,9 @@ export default class FilesController {
 
       try {
         await mkdir(fileDir);
-      } catch (error) { }
+      } catch (error) {
+        /* the dir may already exist */
+      }
 
       fileObject.localPath = fileDir + uuidv4();
       // console.log(`fileObject: ${fileObject}`);
@@ -174,19 +175,19 @@ export default class FilesController {
       return;
     }
 
-    let parentId = request.query.parentId;
+    let { parentId } = request.query;
     if (Number.parseInt(parentId, 16) === 0) {
       parentId = null;
     }
 
-    console.log(`parentId: ${parentId}`);
+    // console.log(`parentId: ${parentId}`);
 
     let result = await dbClient
       .findFiles(userId, parentId)
       || [];
 
-    const pageNumber = Number.parseInt(request.query.page);
-    console.log(pageNumber);
+    const pageNumber = Number.parseInt(request.query.page, 10);
+    // console.log(pageNumber);
     const pageSize = 20;
 
     if (Number.isInteger(pageNumber)) {
