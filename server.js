@@ -11,6 +11,7 @@ for (const [request, callback] of Object.entries(routes)) {
 
   if (method === 'GET') app.get(route, callback);
   if (method === 'POST') app.post(route, callback);
+  if (method === 'PUT') app.put(route, callback);
 }
 
 app.listen(port, () => undefined);

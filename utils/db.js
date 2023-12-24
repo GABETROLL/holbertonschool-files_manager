@@ -136,10 +136,10 @@ class DBClient {
     } catch (error) {
       return null;
     }
-    return this.filesColl.find({ _id: id, userId });
+    return this.filesColl.findOne({ _id: id, userId });
   }
 
-  async setFilePublic(userId, id, public) {
+  async setFilePublic(userId, id, isPublic) {
     try {
       userId = ObjectId(userId);
       id = ObjectId(id);
@@ -148,7 +148,7 @@ class DBClient {
     }
     return this.filesColl.updateOne(
       { _id: id, userId },
-      { $set: { 'isPublic': public } },
+      { $set: { isPublic } },
     );
   }
 }

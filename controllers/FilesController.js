@@ -130,6 +130,8 @@ export default class FilesController {
     response.send(fileObject);
   }
 
+  // TODO: REPLACE `_id` BY `id`
+
   static async getShow(request, response) {
     const userSessionToken = request.get('X-Token');
 
@@ -199,6 +201,7 @@ export default class FilesController {
 
   static async putPublishUnpublish(request, response, publish) {
     const userSessionToken = request.get('X-Token');
+    // console.log(userSessionToken);
 
     if (!userSessionToken) {
       response.status(401);
@@ -207,6 +210,7 @@ export default class FilesController {
     }
 
     const userId = await redisClient.getUserId(userSessionToken);
+    // console.log(userId);
 
     if (!userId) {
       response.status(401);
@@ -214,23 +218,32 @@ export default class FilesController {
       return;
     }
 
-    const fileObject = await dbClient.findUserFile(userId, request.params.id);
-    if (!fileObject) {
+    const updateResult = await dbClient.setFilePublic(userId, request.params.id, publish);
+    // console.log(updateResult);
+
+    if (!updateResult || !updateResult.result.ok || !updateResult.matchedCount) {
       response.status(404);
-      response.send({ error: 'Not found' });
+      response.send({ error: 'Not found'});
       return;
     }
 
-    const updateResult = await dbClient.setFilePublic(userId, request.params.id, publish);
-    console.log(updateResult);
-    response.send({ success: true });
+    const updatedFileObject = await dbClient.findUserFile(userId, request.params.id);
+    // console.log(updatedFileObject);
+
+    if (!updatedFileObject) {
+      response.status(500);
+      response.send({ error: 'Error finding updated file' });
+      return;
+    }
+
+    response.send(updatedFileObject);
   }
 
   static async putPublish(request, response) {
-    FilesController.putPublishUnpublish(request, response);
+    FilesController.putPublishUnpublish(request, response, true);
   }
 
   static async putUnpublish(request, response) {
-    FilesController.putPublishUnpublish(request, response);
+    FilesController.putPublishUnpublish(request, response, false);
   }
 }

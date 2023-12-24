@@ -14,6 +14,6 @@ const routes = {
   'GET /files/:id': FilesController.getShow,
   'GET /files': FilesController.getIndex,
   'PUT /files/:id/publish': FilesController.putPublish,
-  'PUT /files/:id/publish': FilesController.putUnpublish,
+  'PUT /files/:id/unpublish': FilesController.putUnpublish,
 };
 export default routes;
