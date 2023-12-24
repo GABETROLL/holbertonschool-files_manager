@@ -119,9 +119,6 @@ class DBClient {
     return this.filesColl.find(query).toArray();
   }
 
-  async findFile(query) {
-  }
-
   /**
    * Tries to return one file in `this.filesColl`
    * that's owned by `userId` and has
@@ -133,24 +130,27 @@ class DBClient {
    * isn't found.
    */
   async findUserFile(userId, id) {
+    const query = {};
+
     try {
-      userId = ObjectId(userId);
-      id = ObjectId(id);
+      query.userId = ObjectId(userId);
+      query._id = ObjectId(id);
     } catch (error) {
       return null;
     }
-    return this.filesColl.findOne({ _id: id, userId });
+    return this.filesColl.findOne(query);
   }
 
   async setFilePublic(userId, id, isPublic) {
+    const filter = {};
     try {
-      userId = ObjectId(userId);
-      id = ObjectId(id);
+      filter.userId = ObjectId(userId);
+      filter._id = ObjectId(id);
     } catch (error) {
       /* I think it should be not found anyways */
     }
     return this.filesColl.updateOne(
-      { _id: id, userId },
+      filter,
       { $set: { isPublic } },
     );
   }

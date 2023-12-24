@@ -223,7 +223,7 @@ export default class FilesController {
 
     if (!updateResult || !updateResult.result.ok || !updateResult.matchedCount) {
       response.status(404);
-      response.send({ error: 'Not found'});
+      response.send({ error: 'Not found' });
       return;
     }
 
