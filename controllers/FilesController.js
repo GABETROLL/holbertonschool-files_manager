@@ -266,6 +266,12 @@ export default class FilesController {
       return;
     }
 
+    if (fileObject.type === 'folder') {
+      response.status(400);
+      response.json({ error: "A folder doesn't have content" });
+      return;
+    }
+
     let fileContent;
     try {
       fileContent = await readFile(fileObject.localPath);
