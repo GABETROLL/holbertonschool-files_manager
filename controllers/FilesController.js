@@ -2,6 +2,7 @@ import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+import fileQueue from '../worker';
 
 const { mkdir, writeFile, readFile } = fsPromises;
 
@@ -95,7 +96,7 @@ export default class FilesController {
       // console.log(`fileObject: ${fileObject}`);
 
       const fileContent = Buffer.from(request.body.data, 'base64')
-        .toString('ascii');
+        .toString('utf-8');
       // console.log(`fileContent: ${fileContent}`);
 
       try {
@@ -114,6 +115,10 @@ export default class FilesController {
       response.status(500);
       response.send({ error: 'Failed to add file' });
       return;
+    }
+
+    if (fileObject.type === 'image') {
+      fileQueue.add({ userId: fileObject.userId, fileId: fileObject._id });
     }
 
     // ``await dbClient.addFile(fileObject)``
@@ -272,9 +277,15 @@ export default class FilesController {
       return;
     }
 
-    let fileContent;
+    let fileLocalPath = fileObject.localPath;
+    const imageWidth = Number.pareseInt(request.query.size);
+
+    if (fileObject.type === 'image' && Number.isInteger(imageWidth)) {
+      fileLocalPath += `_${imageWidth}`;
+    }
+
     try {
-      fileContent = await readFile(fileObject.localPath);
+      fileContent = await readFile(fileLocalPath);
     } catch (error) {
       response.status(404);
       response.json({ error: 'Not found' });
